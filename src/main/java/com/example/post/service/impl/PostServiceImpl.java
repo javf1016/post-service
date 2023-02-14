@@ -93,15 +93,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public StandardResponse<Post> findPostById(Integer id) {
-        Optional<Post> optionalPost = postRepository.findById(id);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            return new StandardResponse<>(HttpStatus.OK.value(), "Post found", null, null, post, null);
-        } else {
-            return new StandardResponse<>(HttpStatus.NOT_FOUND.value(), "\n" +
-                    "The post does not exist with the id: " + id, null, null, null, null);
+    public StandardResponse<Post> getPost(Integer postId, HttpServletRequest request) {
+        Optional<Post> post = postRepository.findById(postId);
+        if (!post.isPresent()) {
+            return new StandardResponse<>(HttpStatus.NOT_FOUND.value(), "The post with id " + postId + " does not exist", request.getRequestURI(), null, null, null);
         }
+        return new StandardResponse<>(HttpStatus.OK.value(), "Post Found", request.getRequestURI(), null, post.get(), null);
     }
 
     private int generateRandomPostId() {

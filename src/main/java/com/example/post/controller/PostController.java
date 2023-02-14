@@ -53,15 +53,10 @@ public class PostController {
 
 
 	/**
-	 * Add a comment to a post
+	 * Find a post by PostId
 	 */
-	/*@PostMapping("/{postId}/comments")
-	public StandardResponse<Comment> addComment(@PathVariable("postId") Integer postId,
-										   @RequestBody AddCommentRequest addCommentRequest,
-										   HttpServletRequest request) {
-			StandardResponse<User> author = userService.findUserById(addCommentRequest.getAuthorId());
-			StandardResponse<Post> post = postService.findPostById(postId);
-			return postService.addComment(author.getData(), post.getData(), addCommentRequest.getBody(), request);
+	@GetMapping("/{postId}")
+	public StandardResponse<Post> getSinglePost(@PathVariable Integer postId, HttpServletRequest request) {
+			return postService.getPost(postId, request);
 	}
-*/
 }

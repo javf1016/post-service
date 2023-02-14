@@ -36,6 +36,9 @@ public interface PostService {
      * **/
     StandardResponse<Collection<CreatePostRequest>> getAllByUser(int userId, int page, int size, HttpServletRequest request);
 
-    StandardResponse<Post>  findPostById(Integer Id);
+    /**
+     * Find a post by PostId
+     */
+    StandardResponse<Post> getPost(Integer Id, HttpServletRequest request);
 
 }
