@@ -38,7 +38,7 @@ public class PostServiceImpl implements PostService {
     public StandardResponse<Post> createPost(CreatePostRequest requestPost, HttpServletRequest request) {
         Post post = new Post();
         //http://localhost:9001/user/551
-        StandardResponse<User> forObject = restTemplate.getForObject("http://localhost:9001/user/"+requestPost.getUserId(), StandardResponse.class);
+        StandardResponse<User> forObject = restTemplate.getForObject("http://USER-SERVICE/user/"+requestPost.getUserId(), StandardResponse.class);
         logger.info("{}",forObject);
         post.setUserId(forObject.getData().getId());
         post.setTitle(requestPost.getTitle());
@@ -72,7 +72,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public StandardResponse<Collection<CreatePostRequest>> getAllByUser(int userId, int page, int size, HttpServletRequest request) {
         Pageable pageable = PageRequest.of(page, size);
-        StandardResponse<User> forObject = restTemplate.getForObject("http://localhost:9001/user/"+userId, StandardResponse.class);
+        StandardResponse<User> forObject = restTemplate.getForObject("http://USER-SERVICE/user/"+userId, StandardResponse.class);
         logger.info("{}",forObject);
         Collection<CreatePostRequest> createPostRequests = new ArrayList<>();
         if(forObject.getData()==null){
