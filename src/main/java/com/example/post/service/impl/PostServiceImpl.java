@@ -1,9 +1,6 @@
 package com.example.post.service.impl;
 
-import com.example.post.model.CreatePostRequest;
-import com.example.post.model.PageInfo;
-import com.example.post.model.Post;
-import com.example.post.model.StandardResponse;
+import com.example.post.model.*;
 import com.example.post.repository.PostRepository;
 import com.example.post.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +37,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public StandardResponse<Post> createPost(CreatePostRequest requestPost, HttpServletRequest request) {
         Post post = new Post();
-        post.setUserId(requestPost.getUserId());
+        //http://localhost:9001/user/551
+        StandardResponse<User> forObject = restTemplate.getForObject("http://localhost:9001/user/"+requestPost.getUserId(), StandardResponse.class);
+        logger.info("{}",forObject);
+        post.setUserId(forObject.getData().getId());
         post.setTitle(requestPost.getTitle());
         post.setBody(requestPost.getBody());
         post.setViews(0);
@@ -65,23 +65,29 @@ public class PostServiceImpl implements PostService {
         Post post = postOptional.get();
         post.setViews(post.getViews() + 1);
         postRepository.save(post);
-        return new StandardResponse<>(HttpStatus.OK.value(), "Post "+postOptional.get().getTitle()+ " visitado con éxito",
+        return new StandardResponse<>(HttpStatus.NOT_FOUND.value(), "Post "+postOptional.get().getTitle()+ " visitado con éxito",
                 request.getRequestURI(), null, post, null);
     }
 
     @Override
     public StandardResponse<Collection<CreatePostRequest>> getAllByUser(int userId, int page, int size, HttpServletRequest request) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> postPage = postRepository.findAllByUserId(userId, pageable);
+        StandardResponse<User> forObject = restTemplate.getForObject("http://localhost:9001/user/"+userId, StandardResponse.class);
+        logger.info("{}",forObject);
         Collection<CreatePostRequest> createPostRequests = new ArrayList<>();
+        if(forObject.getData()==null){
+            return new StandardResponse<>(HttpStatus.NOT_FOUND.value(), "Get post by user dont success "+ forObject.getMessage(),
+                    request.getRequestURI(), null, null, null);
+        }
+        Page<Post> postPage = postRepository.findAllByUserId(userId, pageable);
         for (Post post : postPage) {
             CreatePostRequest createPostRequest = new CreatePostRequest();
-            createPostRequest.setUserId(post.getUserId());
+            createPostRequest.setUserId(userId);
             createPostRequest.setTitle(post.getTitle());
             createPostRequest.setBody(post.getBody());
             createPostRequests.add(createPostRequest);
         }
-        return new StandardResponse<>(HttpStatus.OK.value(), "Consulta de posts por usuario exitosa",
+        return new StandardResponse<>(HttpStatus.OK.value(), "Get post by user success",
                 request.getRequestURI(), null, createPostRequests,
                 new PageInfo(postPage.getNumber(), postPage.getSize(), postPage.getTotalElements(), postPage.getTotalPages()));
     }
@@ -91,9 +97,10 @@ public class PostServiceImpl implements PostService {
         Optional<Post> optionalPost = postRepository.findById(id);
         if (optionalPost.isPresent()) {
             Post post = optionalPost.get();
-            return new StandardResponse<>(HttpStatus.OK.value(), "Post encontrado", null, null, post, null);
+            return new StandardResponse<>(HttpStatus.OK.value(), "Post found", null, null, post, null);
         } else {
-            return new StandardResponse<>(HttpStatus.NOT_FOUND.value(), "El post no existe con el id: " + id, null, null, null, null);
+            return new StandardResponse<>(HttpStatus.NOT_FOUND.value(), "\n" +
+                    "The post does not exist with the id: " + id, null, null, null, null);
         }
     }
 

@@ -1,10 +1,14 @@
 package com.example.post.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class StandardResponse<T> {
 
     private int statusCode;
@@ -14,12 +18,4 @@ public class StandardResponse<T> {
     private T data;
     private PageInfo pageInfo;
 
-    public StandardResponse(int statusCode, String message, String requestedUri, Map<String, String> parameters, T data, PageInfo pageInfo) {
-        this.statusCode = statusCode;
-        this.message = message;
-        this.requestedUri = requestedUri;
-        this.parameters = parameters;
-        this.data = data;
-        this.pageInfo = pageInfo;
-    }
 }
